@@ -33,9 +33,9 @@ namespace APISolutionComponent
             var componentApiResponse = "[]";
             try
             {
-                if (context.MessageName.Equals("hack_solutioncomponentapi") && context.Stage.Equals(30))
+                if (context.MessageName.Equals("hack_componentapi") && context.Stage.Equals(30))
                 {
-                    tracingService.Trace("Inside hack_solutioncomponentapi");
+                    tracingService.Trace("Inside hack_componentapi");
                     var solutionId = context.InputParameters.Contains("hack_solutionid")
                                     ? (string)context.InputParameters["hack_solutionid"]
                                     : string.Empty;

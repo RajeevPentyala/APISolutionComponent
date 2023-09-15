@@ -24,23 +24,16 @@ namespace APISolutionComponent
         public List<ResponseComponent> ExecuteSolutionComponentQuery(Guid solutionId)
         {
             var collComponents = new List<ResponseComponent>();
-            // Create the query expression
             var query = new QueryExpression("solutioncomponent")
             {
                 ColumnSet = new ColumnSet(true) // Retrieve all columns
             };
 
-            // Create the filter expressions
-            FilterExpression filter = new FilterExpression(LogicalOperator.And);
-
+            var filter = new FilterExpression(LogicalOperator.And);
             // Add the condition for solutionid
             filter.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
-
-            // Add the filter expression to the query expression
             query.Criteria.AddFilter(filter);
-
-            // Execute the query
-            EntityCollection results = OrganizationService.RetrieveMultiple(query);
+            var results = OrganizationService.RetrieveMultiple(query);
 
             // Process the returned rows
             foreach (var entity in results.Entities)
