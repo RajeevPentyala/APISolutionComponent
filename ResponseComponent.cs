@@ -144,15 +144,16 @@ namespace APISolutionComponent
 
     public class ResponseComponent
     {
-        public string ComponentName { get; set; }
-        public string ComponentType { get; set; }
-        public string EntityLogicalName { get; set; }
-        public string EntityId { get; set; }
-        public string ComponentKeyAttributeName { get; set; }
-        public string ComponentNameAttributeName { get; set; }
-        public string ComponentDisplayNameAttributeName { get; set; }
-        public string ComponentDescriptionAttributeName { get; set; }
-        public string ComponentStateAttributeName { get; set; }
-        public string ParentComponentId { get; set; }
+        public string ComponentName { get; set; } = string.Empty;
+        public string ComponentType { get; set; } = string.Empty;
+        public string EntityLogicalName { get; set; } = string.Empty;
+        public string EntityId { get; set; } = string.Empty;
+        public string ComponentKeyAttributeName { get; set; } = string.Empty;
+        public string ComponentNameAttributeName { get; set; } = string.Empty;
+        public string ComponentDisplayNameAttributeName { get; set; } = string.Empty;
+        public string ComponentDescriptionAttributeName { get; set; } = string.Empty;
+        public string ComponentStateAttributeName { get; set; } = string.Empty;
+        public string ParentComponentId { get; set; } = string.Empty;
     }
+
 }

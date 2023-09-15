@@ -21,10 +21,15 @@ namespace APISolutionComponent
             this.TracingService = tracingService;
         }
 
+        /// <summary>
+        /// Executes a query to retrieve solution components for a specified solution.
+        /// </summary>
+        /// <param name="solutionId">The unique identifier of the solution.</param>
+        /// <returns>A list of ResponseComponent objects representing the solution components.</returns>
         public List<ResponseComponent> ExecuteSolutionComponentQuery(Guid solutionId)
         {
             var collComponents = new List<ResponseComponent>();
-            var query = new QueryExpression("solutioncomponent")
+            var querySolutionComponent = new QueryExpression("solutioncomponent")
             {
                 ColumnSet = new ColumnSet(true) // Retrieve all columns
             };
@@ -32,11 +37,11 @@ namespace APISolutionComponent
             var filter = new FilterExpression(LogicalOperator.And);
             // Add the condition for solutionid
             filter.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
-            query.Criteria.AddFilter(filter);
-            var results = OrganizationService.RetrieveMultiple(query);
+            querySolutionComponent.Criteria.AddFilter(filter);
+            var componentDefinitionResponse = OrganizationService.RetrieveMultiple(querySolutionComponent);
 
             // Process the returned rows
-            foreach (var entity in results.Entities)
+            foreach (var entity in componentDefinitionResponse.Entities)
             {
                 var component = new ResponseComponent();
 
@@ -68,6 +73,20 @@ namespace APISolutionComponent
                     component.ComponentKeyAttributeName = entityMetadata.PrimaryIdAttribute;
                     component.ComponentNameAttributeName = entityMetadata.PrimaryNameAttribute;
                 }
+                else if (componentType.Value == 300) // Canvas App
+                {
+                    var canvasAppMetadata = OrganizationService.Retrieve("canvasapp", objectId, new ColumnSet("componentstate", "description", "displayname"));
+                    component.ComponentStateAttributeName = canvasAppMetadata.Contains("componentstate") ? canvasAppMetadata.FormattedValues["componentstate"] : string.Empty;
+                    component.ComponentName = canvasAppMetadata.Contains("displayname") ? canvasAppMetadata["displayname"].ToString() : string.Empty;
+                    component.ComponentType = enumComponentType.ToString();
+                }
+                else if (componentType.Value == 80) // MDA
+                {
+                    var mdaAppMetadata = OrganizationService.Retrieve("appmodule", objectId, new ColumnSet("componentstate", "description", "name", "uniquename"));
+                    component.ComponentStateAttributeName = mdaAppMetadata.Contains("componentstate") ? mdaAppMetadata.FormattedValues["componentstate"] : string.Empty;
+                    component.ComponentName = mdaAppMetadata.Contains("name") ? mdaAppMetadata["name"].ToString() : string.Empty;
+                    component.ComponentType = enumComponentType.ToString();
+                }
 
                 collComponents.Add(component);
             }
@@ -75,25 +94,28 @@ namespace APISolutionComponent
             return collComponents;
         }
 
+        /// <summary>
+        /// Retrieves solution component definitions for a specified solution.
+        /// </summary>
+        /// <param name="solutionId">The unique identifier of the solution.</param>
+        /// <returns>A list of ResponseComponent objects representing the component definitions.</returns>
         public List<ResponseComponent> GetSolutionComponentDefinitions(Guid solutionId)
         {
             var collComponents = new List<ResponseComponent>();
-            // Create the QueryExpression
-            var query = new QueryExpression("solutioncomponentdefinition")
+            var queryComponentDefinition = new QueryExpression("solutioncomponentdefinition")
             {
-                // Set the column set to retrieve all columns
                 ColumnSet = new ColumnSet(true)
             };
 
             var filter = new FilterExpression(LogicalOperator.And);
             // Add the condition for solutionid
             filter.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
-            query.Criteria.AddFilter(filter);
+            queryComponentDefinition.Criteria.AddFilter(filter);
 
-            var results = OrganizationService.RetrieveMultiple(query);
+            var componentDefinitionResponse = OrganizationService.RetrieveMultiple(queryComponentDefinition);
 
             // Process the returned rows
-            foreach (var entity in results.Entities)
+            foreach (var entity in componentDefinitionResponse.Entities)
             {
                 var component = new ResponseComponent
                 {
@@ -131,5 +153,4 @@ namespace APISolutionComponent
             }
         }
     }
-
 }
