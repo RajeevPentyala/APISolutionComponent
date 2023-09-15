@@ -85,7 +85,7 @@ namespace APISolutionComponent
                     var mdaAppMetadata = OrganizationService.Retrieve("appmodule", objectId, new ColumnSet("componentstate", "description", "name", "uniquename"));
                     component.ComponentStateAttributeName = mdaAppMetadata.Contains("componentstate") ? mdaAppMetadata.FormattedValues["componentstate"] : string.Empty;
                     component.ComponentName = mdaAppMetadata.Contains("name") ? mdaAppMetadata["name"].ToString() : string.Empty;
-                    component.ComponentType = enumComponentType.ToString();
+                    component.ComponentType = "Model Driven App";
                 }
 
                 collComponents.Add(component);
