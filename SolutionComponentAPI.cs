@@ -1,5 +1,7 @@
 using Microsoft.Xrm.Sdk;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.ServiceModel;
 
 namespace APISolutionComponent
@@ -41,7 +43,12 @@ namespace APISolutionComponent
                                     ? (string)context.InputParameters["hack_componenttype"]
                                     : string.Empty;
 
-                    var dvHelper = new DVHelper(organizationService, tracingService);
+                    using (var dvHelper = new DVHelper(organizationService, tracingService))
+                    {
+                        var collResponse = dvHelper.ExecuteSolutionComponentQuery(new Guid(solutionId));
+
+                        componentApiResponse = JsonConvert.SerializeObject(collResponse, Formatting.Indented);
+                    }
                 }
             }
             catch (FaultException<OrganizationServiceFault> fe)
