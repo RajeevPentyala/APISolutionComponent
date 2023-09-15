@@ -1,5 +1,6 @@
 using Microsoft.Xrm.Sdk;
 using System;
+using System.ServiceModel;
 
 namespace APISolutionComponent
 {
@@ -27,16 +28,61 @@ namespace APISolutionComponent
             var tracingService = localPluginContext.TracingService;
             var organizationService = localPluginContext.InitiatingUserService;
             var context = localPluginContext.PluginExecutionContext;
-
-            if (context.MessageName.Equals("hack_solutioncomponentapi") && context.Stage.Equals(30))
+            var componentApiResponse = "[]";
+            try
             {
-                tracingService.Trace("Inside hack_solutioncomponentapi");
-                var solutionId = context.InputParameters.Contains("hack_solutionid")
-                                ? (string)context.InputParameters["hack_solutionid"]
-                                : string.Empty;
-                var componentType = context.InputParameters.Contains("hack_componenttype")
-                                ? (string)context.InputParameters["hack_componenttype"]
-                                : string.Empty;
+                if (context.MessageName.Equals("hack_solutioncomponentapi") && context.Stage.Equals(30))
+                {
+                    tracingService.Trace("Inside hack_solutioncomponentapi");
+                    var solutionId = context.InputParameters.Contains("hack_solutionid")
+                                    ? (string)context.InputParameters["hack_solutionid"]
+                                    : string.Empty;
+                    var componentType = context.InputParameters.Contains("hack_componenttype")
+                                    ? (string)context.InputParameters["hack_componenttype"]
+                                    : string.Empty;
+
+                    var dvHelper = new DVHelper(organizationService, tracingService);
+                }
+            }
+            catch (FaultException<OrganizationServiceFault> fe)
+            {
+                tracingService.Trace("Fault Exception:");
+                tracingService.Trace("Timestamp: {0}", fe.Detail.Timestamp);
+                tracingService.Trace("Code: {0}", fe.Detail.ErrorCode);
+                tracingService.Trace("Message: {0}", fe.Detail.Message);
+                tracingService.Trace("Plugin Trace: {0}", fe.Detail.TraceText);
+                tracingService.Trace("Inner Fault: {0}", null == fe.Detail.InnerFault ? "No Inner Fault" : "Has Inner Fault");
+            }
+            catch (TimeoutException te)
+            {
+                tracingService.Trace("Timeout Exception:");
+                tracingService.Trace("Message: {0}", te.Message);
+                tracingService.Trace("Stack Trace: {0}", te.StackTrace);
+                tracingService.Trace("Inner Fault: {0}", null == te.InnerException.Message ? "No Inner Fault" : te.InnerException.Message);
+            }
+            catch (Exception ex)
+            {
+                tracingService.Trace($"Exception: {ex.Message}");
+                // Display the details of the inner exception.
+                if (ex.InnerException != null)
+                {
+                    tracingService.Trace(ex.InnerException.Message);
+
+                    var fe = ex.InnerException as FaultException<OrganizationServiceFault>;
+                    if (fe != null)
+                    {
+                        tracingService.Trace("Timestamp: {0}", fe.Detail.Timestamp);
+                        tracingService.Trace("Code: {0}", fe.Detail.ErrorCode);
+                        tracingService.Trace("Message: {0}", fe.Detail.Message);
+                        tracingService.Trace("Plugin Trace: {0}", fe.Detail.TraceText);
+                        tracingService.Trace("Inner Fault: {0}", null == fe.Detail.InnerFault ? "No Inner Fault" : "Has Inner Fault");
+                    }
+                }
+            }
+            finally
+            {
+                // Setting Output parameters
+                context.OutputParameters["hack_componentapiresponse"] = componentApiResponse;
             }
         }
     }
