@@ -45,9 +45,14 @@ namespace APISolutionComponent
 
                     using (var dvHelper = new DVHelper(organizationService, tracingService))
                     {
-                        var collResponse = dvHelper.ExecuteSolutionComponentQuery(new Guid(solutionId));
+                        var collSolutionComponentResponse = dvHelper.ExecuteSolutionComponentQuery(new Guid(solutionId));
+                        tracingService.Trace($"Count of collSolutionComponentResponse : {collSolutionComponentResponse.Count}");
+                        var collComponentDefinitionResponse = dvHelper.GetSolutionComponentDefinitions(new Guid(solutionId));
+                        tracingService.Trace($"Count of collComponentDefinitionResponse : {collComponentDefinitionResponse.Count}");
 
-                        componentApiResponse = JsonConvert.SerializeObject(collResponse, Formatting.Indented);
+                        collSolutionComponentResponse.AddRange(collComponentDefinitionResponse);
+
+                        componentApiResponse = JsonConvert.SerializeObject(collSolutionComponentResponse, Formatting.Indented);
                     }
                 }
             }

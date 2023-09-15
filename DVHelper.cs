@@ -75,6 +75,37 @@ namespace APISolutionComponent
             return collComponents;
         }
 
+        public List<ResponseComponent> GetSolutionComponentDefinitions(Guid solutionId)
+        {
+            var collComponents = new List<ResponseComponent>();
+            // Create the QueryExpression
+            var query = new QueryExpression("solutioncomponentdefinition")
+            {
+                // Set the column set to retrieve all columns
+                ColumnSet = new ColumnSet(true)
+            };
+
+            var filter = new FilterExpression(LogicalOperator.And);
+            // Add the condition for solutionid
+            filter.AddCondition("solutionid", ConditionOperator.Equal, solutionId);
+            query.Criteria.AddFilter(filter);
+
+            var results = OrganizationService.RetrieveMultiple(query);
+
+            // Process the returned rows
+            foreach (var entity in results.Entities)
+            {
+                var component = new ResponseComponent
+                {
+                    EntityLogicalName = entity.Contains("primaryentityname") ? entity["primaryentityname"].ToString() : string.Empty,
+                    ComponentType = entity.Contains("objecttypecode") ? entity["objecttypecode"].ToString() : string.Empty
+                };
+
+                collComponents.Add(component);
+            }
+
+            return collComponents;
+        }
 
         // Implement the Dispose method to release resources
         public void Dispose()
